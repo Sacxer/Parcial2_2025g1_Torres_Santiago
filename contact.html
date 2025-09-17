@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - CoderHub.run</title>
+    <link rel="icon" type="image/png" href="./IMG/icono.png">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./CSS/styles.css">
+</head>
+<body class="fondo-perm">
+    <nav id="navbarra" class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="./IMG/icono.png" width="40px" alt="CoderHub.run">
+                CoderHub.run
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">Nosotros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="portafolio.html">Portafolio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contacto</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contact Header -->
+    <section class="hero-section-inner">
+        <div class="container py-5">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-12 col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
+                    <h1 class="titulo mb-3 animate__animated animate__fadeInDown">Contáctanos</h1>
+                    <p class="lead text-secondary mb-4">Estamos listos para convertir tus ideas en realidad. ¡Escríbenos y recibe asesoría personalizada!</p>
+                    <a href="portafolio.html" class="btn btn-primary btn-lg wave-effect shadow-sm">Ver proyectos realizados</a>
+                </div>
+                <div class="col-12 col-lg-5 text-center">
+                    <img src="./IMG/logo.png" alt="CoderHub.run" class="img-fluid rounded shadow-lg" style="max-width:340px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section class="py-5">
+        <div class="container py-5">
+            <div class="row mb-5">
+                <div class="col-lg-12 text-center">
+                    <h2 class="mb-4">¿Tienes un <span class="text-accent">proyecto</span> en mente?</h2>
+                    <p class="lead text-secondary">Completa el formulario y nos pondremos en contacto contigo a la brevedad</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8 mb-5">
+                    <div class="card interactive-element">
+                        <div class="card-body p-4">
+                            <form id="contactForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">Nombre completo *</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                        <div class="invalid-feedback">Por favor ingresa tu nombre</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Correo electrónico *</label>
+                                        <input type="email" class="form-control" id="email" required>
+                                        <div class="invalid-feedback">Por favor ingresa un correo válido</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="company" class="form-label">Empresa</label>
+                                    <input type="text" class="form-control" id="company">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Asunto *</label>
+                                    <input type="text" class="form-control" id="subject" required>
+                                    <div class="invalid-feedback">Por favor ingresa el asunto</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Mensaje *</label>
+                                    <textarea class="form-control" id="message" rows="5" required></textarea>
+                                    <div class="invalid-feedback">Por favor ingresa tu mensaje</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary wave-effect">Enviar mensaje</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="contact-info">
+                        <h4 class="mb-4">Información de contacto</h4>
+                        
+                        <div class="contact-info-item interactive-element">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h5>Ubicación</h5>
+                                <p class="text-secondary">Av. Principal #123, Ciudad, País</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info-item interactive-element">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h5>Teléfono</h5>
+                                <p class="text-secondary">+57 123 456 7890</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info-item interactive-element">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h5>Email</h5>
+                                <p class="text-secondary">info@coderhub.run</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info-item interactive-element">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h5>Horario de atención</h5>
+                                <p class="text-secondary">Lunes - Viernes: 9:00 AM - 6:00 PM</p>
+                                <p class="text-secondary">Sábados: 9:00 AM - 1:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <h4 class="mb-4">Síguenos en redes sociales</h4>
+                        <div class="social-icons">
+                            <a href="#" class="btn-hover-effect"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="btn-hover-effect"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="btn-hover-effect"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="btn-hover-effect"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="btn-hover-effect"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="py-5 bg-dark-custom">
+        <div class="container py-5">
+            <h2 class="section-title">Nuestra ubicación</h2>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="map-container interactive-element">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.7855757337587!2d-74.0834844250186!3d4.635129942213529!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9bfd2da6cb29%3A0x239d635520a33914!2sBogot%C3%A1%2C%20Colombia!5e0!3m2!1sen!2sus!4v1693950288408!5m2!1sen!2sus" width="100%" height="450" style="border:0; border-radius: 10px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <h5 class="mb-2"><img src="./IMG/icono.png" height="40px" alt="CoderHub.run" style="margin-right:10px;vertical-align:middle;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">CoderHub.run</h5>
+                    <p class="text-secondary small mb-0">Transformamos ideas en soluciones digitales innovadoras y de alta calidad.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="social-icons mb-2">
+                        <a href="#" class="btn-hover-effect mx-1" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="btn-hover-effect mx-1" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="btn-hover-effect mx-1" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="btn-hover-effect mx-1" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="btn-hover-effect mx-1" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                    <p class="text-secondary small mb-0"><i class="fas fa-envelope me-2 text-accent"></i> sacxer24@gmail.com</p>
+                </div>
+            </div>
+            <hr class="my-3 bg-secondary">
+            <div class="text-center">
+                <p class="text-secondary small mb-0">&copy; 2025 CoderHub.run. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="./Js/javaScript.js"></script>
+</body>
+</html>
