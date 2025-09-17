@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto - CoderHub.run</title>
     <link rel="icon" type="image/png" href="./IMG/icono.png">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="./CSS/styles.css">
 </head>
 <body class="fondo-perm">
@@ -73,40 +68,98 @@
                     <p class="lead text-secondary">Completa el formulario y nos pondremos en contacto contigo a la brevedad</p>
                 </div>
             </div>
-
             <div class="row">
-                <div class="col-lg-8 mb-5">
+                <div class="col-lg-8 order-lg-1 mb-5">
                     <div class="card interactive-element">
                         <div class="card-body p-4">
-                            <form id="contactForm">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="name" class="form-label">Nombre completo *</label>
-                                        <input type="text" class="form-control" id="name" required>
-                                        <div class="invalid-feedback">Por favor ingresa tu nombre</div>
+                            <div class="contact-form-container p-5 fade-in-up" style="animation-delay: 0.4s;">
+                                <form id="contactForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="name" placeholder="Tu nombre completo" required>
+                                                    <label for="name">
+                                                        <i class="fas fa-user me-2"></i>Nombre completo *
+                                                    </label>
+                                                    <div class="valid-feedback">
+                                                        <i class="fas fa-check-circle me-2"></i>Perfecto
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <i class="fas fa-exclamation-circle me-2"></i>Por favor ingresa tu nombre
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <div class="form-floating">
+                                                    <input type="email" class="form-control" id="email" placeholder="tu@email.com" required>
+                                                    <label for="email">
+                                                        <i class="fas fa-envelope me-2"></i>Correo electrónico *
+                                                    </label>
+                                                    <div class="valid-feedback">
+                                                        <i class="fas fa-check-circle me-2"></i>Email válido
+                                                    </div>
+                                                    <div class="invalid-feedback">
+                                                        <i class="fas fa-exclamation-circle me-2"></i>Ingresa un email válido
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="email" class="form-label">Correo electrónico *</label>
-                                        <input type="email" class="form-control" id="email" required>
-                                        <div class="invalid-feedback">Por favor ingresa un correo válido</div>
+
+                                    <div class="input-group">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="company" placeholder="Tu empresa">
+                                            <label for="company">
+                                                <i class="fas fa-building me-2"></i>Empresa (opcional)
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="company" class="form-label">Empresa</label>
-                                    <input type="text" class="form-control" id="company">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="subject" class="form-label">Asunto *</label>
-                                    <input type="text" class="form-control" id="subject" required>
-                                    <div class="invalid-feedback">Por favor ingresa el asunto</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="message" class="form-label">Mensaje *</label>
-                                    <textarea class="form-control" id="message" rows="5" required></textarea>
-                                    <div class="invalid-feedback">Por favor ingresa tu mensaje</div>
-                                </div>
-                                <button type="submit" class="btn btn-primary wave-effect">Enviar mensaje</button>
-                            </form>
+
+                                    <div class="input-group">
+                                        <div class="form-floating">
+                                            <select class="form-control" id="service" required>
+                                                <option value="">Selecciona un servicio</option>
+                                                <option value="desarrollo-web">Desarrollo Web</option>
+                                                <option value="apps-moviles">Apps Móviles</option>
+                                                <option value="marketing-digital">Marketing Digital</option>
+                                                <option value="consultoria">Consultoría</option>
+                                                <option value="otro">Otro</option>
+                                            </select>
+                                            <label for="service">
+                                                <i class="fas fa-cogs me-2"></i>Servicio de interés *
+                                            </label>
+                                            <div class="invalid-feedback">
+                                                <i class="fas fa-exclamation-circle me-2"></i>Selecciona un servicio
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <div class="form-floating">
+                                            <textarea class="form-control" id="message" placeholder="Cuéntanos sobre tu proyecto..." 
+                                            style="height: 120px;" required></textarea>
+                                            <label for="message">
+                                                <i class="fas fa-comment-dots me-2"></i>Mensaje *
+                                            </label>
+                                            <div class="valid-feedback">
+                                                <i class="fas fa-check-circle me-2"></i>Gracias por los detalles
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                <i class="fas fa-exclamation-circle me-2"></i>Cuéntanos sobre tu proyecto
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button type="submit" class="btn-submit">
+                                            <span class="btn-text">Enviar mensaje</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,7 +190,6 @@
                                 <p class="text-secondary">info@coderhub.run</p>
                             </div>
                         </div>
-                        
                         <div class="contact-info-item interactive-element">
                             <i class="fas fa-clock"></i>
                             <div>
@@ -203,9 +255,7 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
     <script src="./Js/javaScript.js"></script>
 </body>
 </html>

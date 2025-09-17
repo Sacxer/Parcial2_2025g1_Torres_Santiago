@@ -1,289 +1,468 @@
-// Sistema de cursor personalizado con efectos
-function initCustomCursor() {
-    // Crear elementos del cursor
-    const cursorDot = document.createElement('div');
-    const cursorOutline = document.createElement('div');
-    cursorDot.className = 'cursor-dot';
-    cursorOutline.className = 'cursor-outline';
-    
-    document.body.appendChild(cursorDot);
-    document.body.appendChild(cursorOutline);
-    
-    // Variables para rastrear la posición del cursor
-    let mouseX = 0;
-    let mouseY = 0;
-    let outlineX = 0;
-    let outlineY = 0;
-    let trails = [];
-    
-    // Actualizar posición del cursor
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        
-        // Mover el punto principal del cursor
-        cursorDot.style.left = `${mouseX}px`;
-        cursorDot.style.top = `${mouseY}px`;
-        
-        // Crear efecto de rastro
-        if (trails.length < 15) {
-            createTrail(mouseX, mouseY);
-        }
-    });
-    
-    // Función para crear efecto de rastro
-    function createTrail(x, y) {
-        const trail = document.createElement('div');
-        trail.className = 'cursor-trail';
-        trail.style.left = `${x}px`;
-        trail.style.top = `${y}px`;
-        
-        // Color aleatorio de la paleta
-        const colors = ['#cc8800', '#ff9800', '#ffa424', '#ffff36', '#fdfd96'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        trail.style.backgroundColor = randomColor;
-        
-        document.body.appendChild(trail);
-        trails.push(trail);
-        
-        // Eliminar el rastro después de la animación
-        setTimeout(() => {
-            if (trail.parentNode) {
-                trail.parentNode.removeChild(trail);
-                trails = trails.filter(t => t !== trail);
-            }
-        }, 600);
-    }
-    
-    // Animación suave para el contorno del cursor
-    function animateCursor() {
-        // Calcular la nueva posición con un retraso para el contorno
-        const dx = mouseX - outlineX;
-        const dy = mouseY - outlineY;
-        outlineX += dx * 0.1;
-        outlineY += dy * 0.1;
-        
-        // Actualizar posición del contorno
-        cursorOutline.style.left = `${outlineX}px`;
-        cursorOutline.style.top = `${outlineY}px`;
-        
-        requestAnimationFrame(animateCursor);
-    }
-    
-    // Iniciar animación
-    animateCursor();
-    
-    // Efectos al hacer clic
-    document.addEventListener('mousedown', () => {
-        cursorDot.style.transform = 'translate(-50%, -50%) scale(0.7)';
-        cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.2)';
-        
-        // Crear efecto de clic
-        const clickEffect = document.createElement('div');
-        clickEffect.className = 'cursor-click';
-        clickEffect.style.left = `${mouseX}px`;
-        clickEffect.style.top = `${mouseY}px`;
-        
-        document.body.appendChild(clickEffect);
-        
-        // Eliminar el efecto después de la animación
-        setTimeout(() => {
-            if (clickEffect.parentNode) {
-                clickEffect.parentNode.removeChild(clickEffect);
-            }
-        }, 500);
-    });
-    
-    document.addEventListener('mouseup', () => {
-        cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
-        cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
-    });
-    
-    // Ocultar cursor en elementos de entrada
-    const interactiveElements = document.querySelectorAll('button, a, input, textarea, select, .interactive-element');
-    
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursorDot.style.transform = 'translate(-50%, -50%) scale(1.5)';
-            cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
-            cursorOutline.style.opacity = '0.8';
-            
-            // Agregar clase para efecto especial
-            el.classList.add('cursor-hover');
-        });
-        
-        el.addEventListener('mouseleave', () => {
-            cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
-            cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
-            cursorOutline.style.opacity = '0.5';
-            
-            // Remover clase de efecto especial
-            el.classList.remove('cursor-hover');
-        });
-    });
-    
-    // Efecto de partículas al hacer hover en elementos específicos
-    const particleElements = document.querySelectorAll('.particle-burst');
-    
-    particleElements.forEach(el => {
-        el.addEventListener('mousemove', (e) => {
-            const rect = el.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            el.style.setProperty('--x', `${x}px`);
-            el.style.setProperty('--y', `${y}px`);
-        });
-    });
-    
-    // Ocultar cursor cuando sale de la ventana
-    document.addEventListener('mouseleave', () => {
-        cursorDot.classList.add('hidden');
-        cursorOutline.classList.add('hidden');
-    });
-    
-    document.addEventListener('mouseenter', () => {
-        cursorDot.classList.remove('hidden');
-        cursorOutline.classList.remove('hidden');
-    });
-}
 
-// Inicializar el cursor personalizado
-initCustomCursor();
+class AnimationManager {
+    constructor() {
+        this.observedElements = new Set();
+        this.animationQueue = [];
+        this.isInitialized = false;
+        this.init();
+    }
 
-// Efectos interactivos adicionales
-function initInteractiveEffects() {
-    // Efecto de ondas al hacer clic
-    document.querySelectorAll('.wave-effect').forEach(el => {
-        el.addEventListener('click', function(e) {
-            // Crear elemento de onda
-            const wave = document.createElement('div');
-            wave.className = 'wave';
-            wave.style.top = `${e.offsetY}px`;
-            wave.style.left = `${e.offsetX}px`;
-            
-            this.appendChild(wave);
-            
-            // Eliminar después de la animación
-            setTimeout(() => {
-                if (wave.parentNode) {
-                    wave.parentNode.removeChild(wave);
+    init() {
+        if (this.isInitialized) return;
+        
+        // Eliminar funciones de cursor personalizado
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupScrollAnimations();
+            this.setupHoverEffects();
+            this.setupFormAnimations();
+            this.setupPageTransitions();
+            this.optimizePerformance();
+        });
+        
+        this.isInitialized = true;
+    }
+
+    setupScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    this.triggerElementAnimation(entry.target);
+                    observer.unobserve(entry.target); // Solo animar una vez
                 }
-            }, 600);
+            });
+        }, observerOptions);
+
+        // Seleccionar elementos para animar
+        const elementsToAnimate = document.querySelectorAll(`
+            .card,
+            .service-card,
+            .portfolio-card,
+            .pricing-card,
+            .team-img,
+            .process-number,
+            .contact-info-item,
+            .testimonial-img,
+            .section-title,
+            .hero-section h1,
+            .hero-section p
+        `);
+
+        elementsToAnimate.forEach((element, index) => {
+            // Preparar elemento para animación
+            element.classList.add('will-animate');
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
+            
+            // Asignar animación aleatoria para variedad
+            const animations = [
+                'animate-slide-up',
+                'animate-slide-left',
+                'animate-slide-right',
+                'animate-zoom-rotate',
+                'animate-flip-y'
+            ];
+            
+            const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+            element.dataset.animation = randomAnimation;
+            
+            // Agregar delay escalonado
+            const delay = Math.min(index * 0.1, 1); // Máximo 1 segundo
+            element.style.animationDelay = `${delay}s`;
+            
+            observer.observe(element);
         });
-    });
-    
-    // Seguir el cursor con elementos (efecto de atracción)
-    const followElements = document.querySelectorAll('.follow-cursor');
-    
-    followElements.forEach(el => {
-        document.addEventListener('mousemove', (e) => {
-            const rect = el.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            const distanceX = e.clientX - centerX;
-            const distanceY = e.clientY - centerY;
-            
-            // Mover ligeramente el elemento hacia el cursor
-            const moveX = distanceX * 0.02;
-            const moveY = distanceY * 0.02;
-            
-            el.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    }
+
+    triggerElementAnimation(element) {
+        const animation = element.dataset.animation || 'animate-slide-up';
+        
+        // Reset estilos iniciales
+        element.style.opacity = '';
+        element.style.transform = '';
+        
+        // Aplicar animación
+        element.classList.add(animation);
+        
+        // Limpiar después de la animación
+        element.addEventListener('animationend', () => {
+            element.classList.add('animation-complete');
+            element.classList.remove('will-animate');
+        }, { once: true });
+    }
+
+    setupHoverEffects() {
+        // Mejorar cards existentes
+        document.querySelectorAll('.card').forEach(card => {
+            if (!card.classList.contains('card-enhanced')) {
+                card.classList.add('card-enhanced');
+            }
         });
-    });
-    
-    // Efecto de texto que sigue al cursor
-    const textElements = document.querySelectorAll('.text-cursor-effect');
-    
-    textElements.forEach(el => {
-        el.addEventListener('mousemove', (e) => {
-            const chars = el.textContent.split('');
-            el.textContent = '';
+
+        // Efectos especiales para service cards
+        document.querySelectorAll('.service-card').forEach(card => {
+            this.setupServiceCardEffects(card);
+        });
+
+        // Efectos para botones
+        document.querySelectorAll('.btn-primary, .btn-outline-primary').forEach(btn => {
+            if (!btn.classList.contains('btn-wave')) {
+                btn.classList.add('btn-wave');
+            }
+        });
+
+        // Efectos para iconos
+        document.querySelectorAll('.icon, .fas, .fab').forEach(icon => {
+            if (!icon.closest('.service-card')) {
+                icon.classList.add('icon-animated');
+            }
+        });
+    }
+
+    setupServiceCardEffects(card) {
+        const icon = card.querySelector('.icon i');
+        const title = card.querySelector('h4');
+        const description = card.querySelector('p, .service-info');
+        
+        // Efecto de entrada del mouse
+        card.addEventListener('mouseenter', () => {
+            // Animar icono
+            if (icon) {
+                icon.style.animation = 'iconPulse 1.5s ease-in-out';
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+            }
             
-            chars.forEach((char, i) => {
-                const span = document.createElement('span');
-                span.textContent = char;
-                span.style.transitionDelay = `${i * 0.05}s`;
-                span.style.display = 'inline-block';
+            // Animar título
+            if (title) {
+                title.style.transform = 'translateY(-3px)';
+                title.style.textShadow = '0 5px 15px rgba(255, 168, 36, 0.3)';
+            }
+            
+            // Mostrar información adicional si existe
+            if (description && description.style.display === 'none') {
+                description.style.display = 'block';
+                description.style.animation = 'slideInUp 0.5s ease-out';
+            }
+        });
+        
+        // Efecto de salida del mouse
+        card.addEventListener('mouseleave', () => {
+            if (icon) {
+                icon.style.animation = '';
+                icon.style.transform = '';
+            }
+            
+            if (title) {
+                title.style.transform = '';
+                title.style.textShadow = '';
+            }
+        });
+    }
+
+    setupFormAnimations() {
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.classList.add('form-control-enhanced');
+            
+            // Efecto focus mejorado
+            input.addEventListener('focus', () => {
+                const label = input.previousElementSibling;
+                if (label && label.tagName === 'LABEL') {
+                    label.style.transform = 'translateY(-5px)';
+                    label.style.fontSize = '0.875rem';
+                    label.style.color = 'var(--primary-color)';
+                }
+            });
+            
+            input.addEventListener('blur', () => {
+                const label = input.previousElementSibling;
+                if (label && label.tagName === 'LABEL' && !input.value) {
+                    label.style.transform = '';
+                    label.style.fontSize = '';
+                    label.style.color = '';
+                }
+            });
+        });
+    }
+
+    setupPageTransitions() {
+        // Animación de salida al hacer clic en enlaces internos
+        document.querySelectorAll('a[href^="./"], a[href^="../"], a[href$=".html"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
                 
-                // Efecto de movimiento basado en la posición del cursor
-                const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const distance = Math.sqrt(Math.pow(x - (rect.width / 2), 2) + Math.pow(y - (rect.height / 2), 2));
-                const intensity = Math.min(1, distance / 100);
-                
-                span.style.transform = `translateY(${intensity * 10}px) rotate(${intensity * 5}deg)`;
-                
-                el.appendChild(span);
+                // Solo para enlaces internos (no anclas)
+                if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+                    e.preventDefault();
+                    
+                    // Animación de salida
+                    document.body.style.animation = 'fadeOut 0.3s ease-out forwards';
+                    
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 300);
+                }
             });
         });
         
-        el.addEventListener('mouseleave', () => {
-            const spans = el.querySelectorAll('span');
-            spans.forEach(span => {
-                span.style.transform = 'translateY(0) rotate(0)';
-            });
+        // Animación de entrada al cargar la página
+        window.addEventListener('load', () => {
+            document.body.style.animation = 'fadeIn 0.5s ease-in';
         });
-    });
+    }
+
+    optimizePerformance() {
+        // Usar requestAnimationFrame para animaciones suaves
+        let ticking = false;
+        
+        const updateAnimations = () => {
+            // Procesar cola de animaciones
+            if (this.animationQueue.length > 0) {
+                const animation = this.animationQueue.shift();
+                if (animation && typeof animation === 'function') {
+                    animation();
+                }
+            }
+            
+            ticking = false;
+        };
+        
+        // Throttle para scroll
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateAnimations);
+                ticking = true;
+            }
+        });
+        
+        // Pausar animaciones cuando la página no está visible
+        document.addEventListener('visibilitychange', () => {
+            const animatedElements = document.querySelectorAll('[class*="animate-"]');
+            
+            if (document.hidden) {
+                animatedElements.forEach(el => {
+                    el.style.animationPlayState = 'paused';
+                });
+            } else {
+                animatedElements.forEach(el => {
+                    el.style.animationPlayState = 'running';
+                });
+            }
+        });
+    }
+    
+    // Agregar animación personalizada
+    addCustomAnimation(element, animationClass, duration = 0.5) {
+        return new Promise((resolve) => {
+            element.classList.add(animationClass);
+            element.style.animationDuration = `${duration}s`;
+            
+            const handleAnimationEnd = () => {
+                element.classList.remove(animationClass);
+                element.removeEventListener('animationend', handleAnimationEnd);
+                resolve();
+            };
+            
+            element.addEventListener('animationend', handleAnimationEnd);
+        });
+    }
+    
+    // Animar contador
+    animateCounter(element, target, duration = 2000) {
+        const start = 0;
+        const increment = target / (duration / 16);
+        let current = start;
+        
+        const updateCounter = () => {
+            current += increment;
+            
+            if (current >= target) {
+                element.textContent = target;
+                return;
+            }
+            
+            element.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+        };
+        
+        updateCounter();
+    }
+    
+    // Efecto de escritura
+    typeWriter(element, text, speed = 100) {
+        element.textContent = '';
+        element.classList.add('text-typewriter');
+        
+        return new Promise((resolve) => {
+            let i = 0;
+            
+            const type = () => {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.classList.remove('text-typewriter');
+                    resolve();
+                }
+            };
+            
+            type();
+        });
+    }
 }
 
-// Inicializar efectos interactivos
-initInteractiveEffects();
 
-// Efecto hover en cards de servicios para mostrar info y cambiar fondo
+// Agregar estilos CSS dinámicamente
+const additionalStyles = `
+    @keyframes fadeOut {
+        0% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.95); }
+    }
+    
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    
+    .page-transition {
+        transition: all 0.3s ease-out;
+    }
+    
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-secondary) 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease-out;
+    }
+    
+    .loading-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+`;
+
+// Inyectar estilos
+const styleSheet = document.createElement('style');
+styleSheet.textContent = additionalStyles;
+document.head.appendChild(styleSheet);
+
+// Crear instancia del gestor de animaciones
+const animationManager = new AnimationManager();
+
+// Funciones de compatibilidad para el código existente
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show animate-slide-up`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.parentNode.insertBefore(alertDiv, contactForm);
+    } else {
+        document.querySelector('main, .container').prepend(alertDiv);
+    }
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            bootstrap.Alert.getInstance(alertDiv)?.close();
+        }
+    }, 5000);
+}
+
+// Mantener funcionalidades existentes importantes
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.service-hover-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            const info = card.querySelector('.service-info');
-            if (info) {
-                info.style.display = 'block';
-            }
-        });
-        card.addEventListener('mouseleave', function() {
-            const info = card.querySelector('.service-info');
-            if (info) {
-                info.style.display = 'none';
+    // Navegación suave
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            if (this.getAttribute('href') !== '#' && 
+                this.pathname === window.location.pathname) {
+                
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             }
         });
     });
-});
 
-// Validación del formulario de contacto
-document.addEventListener('DOMContentLoaded', function() {
-    initializePage();
-});
-
-function initializePage() {
-    // Validación del formulario de contacto
-    const contactForm = document.getElementById('contactForm');
+    // Navbar scroll effect
+    let prevScroll = window.scrollY;
+    const navbar = document.getElementById("navbarra");
     
+    window.addEventListener("scroll", () => {
+        let currentScroll = window.scrollY;
+        
+        if (currentScroll > prevScroll && currentScroll > 100) {
+            navbar.style.transform = "translateY(-100%)";
+        } else {
+            navbar.style.transform = "translateY(0)";
+        }
+        
+        // Cambiar estilo del navbar
+        if (currentScroll > 50) {
+            navbar.classList.add('navbar-scrolled');
+        } else {
+            navbar.classList.remove('navbar-scrolled');
+        }
+        
+        prevScroll = currentScroll;
+    });
+
+    // Highlight animation
+    const highlight = document.querySelector(".highlight");
+    if (highlight) {
+        setTimeout(() => {
+            highlight.classList.add("animate");
+        }, 500);
+    }
+
+    // Formulario de contacto
+    const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Mostrar spinner de carga
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
             submitBtn.disabled = true;
             
-            // Validar campos
+            // Validaciones básicas...
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
             
-            if (name === '' || email === '' || subject === '' || message === '') {
+            if (!name || !email || !subject || !message) {
                 showAlert('Por favor, complete todos los campos.', 'danger');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
                 return;
             }
             
-            // Validar formato de email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 showAlert('Por favor, ingrese un correo electrónico válido.', 'danger');
@@ -292,111 +471,31 @@ function initializePage() {
                 return;
             }
             
-            // Simular envío (en un caso real, aquí iría una petición AJAX)
             setTimeout(() => {
-                // Si pasa la validación
                 showAlert('¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.', 'success');
                 this.reset();
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
-                
-                // Disparar evento de conversión para analytics
-                document.dispatchEvent(new CustomEvent('contactFormSubmitted'));
             }, 2000);
         });
     }
 
-    // Animación al hacer scroll
-    const animatedElements = document.querySelectorAll('.animate__animated');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const animation = entry.target.getAttribute('data-animation');
-                entry.target.classList.add(animation);
-                
-                // Si es un contador, iniciar animación
-                if (entry.target.classList.contains('counter')) {
-                    animateCounter(entry.target);
+    // Contadores animados
+    document.querySelectorAll('.counter').forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animationManager.animateCounter(counter, target);
+                    observer.unobserve(counter);
                 }
-                
-                observer.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.1
-    });
-    
-    animatedElements.forEach(element => {
-        observer.observe(element);
-    });
-
-    // Navegación suave solo para anclas dentro de la misma página
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            // Solo procesar si el enlace es un ancla dentro de la misma página
-            if (this.getAttribute('href') !== '#' && 
-                this.pathname === window.location.pathname) {
-                
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    // Cerrar navbar colapsado en móviles
-                    const navbarCollapse = document.querySelector('.navbar-collapse');
-                    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-                        bootstrap.Collapse.getInstance(navbarCollapse).hide();
-                    }
-                    
-                    // Actualizar URL sin recargar la página
-                    history.pushState(null, null, targetId);
-                }
-            }
-        });
-    });
-
-    // Manejar la navegación cuando se usa el botón de retroceso
-    window.addEventListener('popstate', function() {
-        const hash = window.location.hash;
-        if (hash) {
-            const targetElement = document.querySelector(hash);
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 80,
-                    behavior: 'smooth'
-                });
-            }
-        }
-    });
-
-    // Cambiar navbar al hacer scroll
-    window.addEventListener('scroll', function() {
-        const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
+            });
+        }, { threshold: 0.3 });
         
-        // Mostrar u ocultar botón "volver arriba"
-        const backToTopBtn = document.querySelector('.back-to-top');
-        if (backToTopBtn) {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.add('show');
-            } else {
-                backToTopBtn.classList.remove('show');
-            }
-        }
+        observer.observe(counter);
     });
 
-    // Botón "volver arriba"
+    // Botón back to top
     const backToTopBtn = document.createElement('div');
     backToTopBtn.className = 'back-to-top';
     backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
@@ -408,318 +507,339 @@ function initializePage() {
     });
     document.body.appendChild(backToTopBtn);
 
-    // Efecto de escritura para el eslogan
-    const sloganElement = document.querySelector('.slogan-typing');
-    if (sloganElement) {
-        const sloganText = sloganElement.textContent;
-        sloganElement.textContent = '';
-        
-        let i = 0;
-        const typeWriter = () => {
-            if (i < sloganText.length) {
-                sloganElement.textContent += sloganText.charAt(i);
-                i++;
-                setTimeout(typeWriter, 100);
-            }
-        };
-        
-        typeWriter();
-    }
-
-    // Inicializar tooltips de Bootstrap
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Inicializar popovers de Bootstrap
-    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
-    });
-
-    // Filtrado de portafolio
-    const portfolioFilters = document.querySelectorAll('.portfolio-filter');
-    if (portfolioFilters.length > 0) {
-        portfolioFilters.forEach(filter => {
-            filter.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Remover clase active de todos los filtros
-                portfolioFilters.forEach(f => f.classList.remove('active'));
-                
-                // Agregar clase active al filtro clickeado
-                this.classList.add('active');
-                
-                const filterValue = this.getAttribute('data-filter');
-                filterPortfolio(filterValue);
-            });
-        });
-    }
-
-    // Inicializar modales para proyectos del portafolio
-    initProjectModals();
-
-    // Inicializar animaciones de barras de progreso
-    initProgressBars();
-
-    // Inicializar carrusel de testimonios
-    initTestimonialCarousel();
-
-    // Inicializar contadores estadísticos
-    initCounters();
-
-    // Inicializar mapa interactivo
-    initInteractiveMap();
-
-    // Inicializar validación de formularios
-    initFormValidation();
-
-    // Inicializar navegación
-    initNavigation();
-}
-
-// Función para manejar correctamente la navegación entre páginas
-function initNavigation() {
-    // Manejar clics en enlaces del navbar
-    document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Si es un enlace a otra página, no prevenir el comportamiento por defecto
-            const href = this.getAttribute('href');
-            
-            // Solo es un enlace interno si no comienza con http y no es un ancla
-            if (href && !href.startsWith('http') && !href.startsWith('#') && 
-                !href.startsWith('mailto:') && !href.startsWith('tel:')) {
-                
-                // Agregar clase de carga
-                document.body.classList.add('page-loading');
-                
-                // Aquí podrías agregar una animación de carga si quieres
-                console.log('Navegando a:', href);
-                
-                // Permitir que el navegador continue con la navegación normal
-                // No usar e.preventDefault() para enlaces a otras páginas
-            }
-        });
-    });
-    
-    // Remover clase de carga cuando la página se cargue
-    window.addEventListener('load', function() {
-        document.body.classList.remove('page-loading');
-    });
-}
-
-// Función para mostrar alertas
-function showAlert(message, type) {
-    // Crear elemento de alerta
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.setAttribute('role', 'alert');
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    // Insertar la alerta al principio del formulario o de la página
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.parentNode.insertBefore(alertDiv, contactForm);
-    } else {
-        document.querySelector('main').prepend(alertDiv);
-    }
-    
-    // Auto-eliminar la alerta después de 5 segundos
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            bootstrap.Alert.getInstance(alertDiv).close();
-        }
-    }, 5000);
-}
-
-// Función para filtrar portafolio
-function filterPortfolio(filterValue) {
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
-    
-    portfolioItems.forEach(item => {
-        if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-            item.style.display = 'block';
-            setTimeout(() => {
-                item.style.opacity = '1';
-                item.style.transform = 'scale(1)';
-            }, 50);
-        } else {
-            item.style.opacity = '0';
-            item.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                item.style.display = 'none';
-            }, 300);
-        }
-    });
-}
-
-// Función para inicializar modales de proyectos
-function initProjectModals() {
-    const projectButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
-    
-    projectButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const projectId = this.getAttribute('data-project-id');
-            // Aquí podrías cargar dinámicamente el contenido del modal
-            // basado en el projectId
-        });
-    });
-}
-
-// Función para inicializar barras de progreso
-function initProgressBars() {
-    const progressBars = document.querySelectorAll('.progress-bar');
-    
-    progressBars.forEach(bar => {
-        const width = bar.getAttribute('aria-valuenow');
-        bar.style.width = '0%';
-        
-        // Animar la barra cuando sea visible
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        bar.style.width = `${width}%`;
-                    }, 200);
-                    observer.unobserve(bar);
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        observer.observe(bar);
-    });
-}
-
-// Función para inicializar carrusel de testimonios
-function initTestimonialCarousel() {
-    const carousel = document.querySelector('#testimonialCarousel');
-    if (carousel) {
-        // Configuración automática del carrusel
-        setInterval(() => {
-            bootstrap.Carousel.getInstance(carousel).next();
-        }, 5000);
-    }
-}
-
-// Función para animar contadores
-function animateCounter(counterElement) {
-    const target = parseInt(counterElement.getAttribute('data-target'));
-    const duration = 2000; // 2 segundos
-    const step = target / (duration / 16); // 60fps
-    
-    let current = 0;
-    
-    const timer = setInterval(() => {
-        current += step;
-        if (current >= target) {
-            clearInterval(timer);
-            current = target;
-        }
-        counterElement.textContent = Math.round(current);
-    }, 16);
-}
-
-// Función para inicializar contadores
-function initCounters() {
-    const counters = document.querySelectorAll('.counter');
-    
-    counters.forEach(counter => {
-        // Observar cuando el contador es visible
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateCounter(counter);
-                    observer.unobserve(counter);
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        observer.observe(counter);
-    });
-}
-
-// Función para inicializar mapa interactivo
-function initInteractiveMap() {
-    const map = document.querySelector('#interactiveMap');
-    if (!map) return;
-    
-    // Aquí podrías inicializar un mapa interactivo con librerías como Leaflet o Google Maps
-    // Por ahora, solo agregamos un event listener para demostración
-    map.addEventListener('click', function() {
-        showAlert('Mapa interactivo: Esta funcionalidad se puede expandir con una API de mapas.', 'info');
-    });
-}
-
-// Función para inicializar validación de formularios
-function initFormValidation() {
-    const forms = document.querySelectorAll('form');
-    
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            // Validación básica de todos los formularios
-            const requiredFields = this.querySelectorAll('[required]');
-            let valid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    valid = false;
-                    field.classList.add('is-invalid');
-                } else {
-                    field.classList.remove('is-invalid');
-                }
-            });
-            
-            if (!valid) {
-                e.preventDefault();
-                showAlert('Por favor, complete todos los campos obligatorios.', 'danger');
-            }
-        });
-    });
-}
-
-// Efecto de parallax para imágenes de fondo
-function initParallax() {
-    const parallaxElements = document.querySelectorAll('.parallax');
-    
+    // Mostrar/ocultar botón back to top
     window.addEventListener('scroll', () => {
-        const scrollPosition = window.pageYOffset;
-        
-        parallaxElements.forEach(element => {
-            const speed = element.getAttribute('data-parallax-speed') || 0.5;
-            element.style.transform = `translateY(${scrollPosition * speed}px)`;
-        });
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('show');
+        } else {
+            backToTopBtn.classList.remove('show');
+        }
     });
-}
-
-// Inicializar todas las funcionalidades cuando el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializePage);
-} else {
-    initializePage();
-}
-
-let prevScroll = window.scrollY;
-const navbar = document.getElementById("navbarra");
-
-window.addEventListener("scroll", () => {
-    let currentScroll = window.scrollY;
-
-    if (currentScroll > prevScroll) {
-    // Bajando → ocultar
-        navbar.style.top = "-80px"; // ajusta a la altura real de tu navbar
-    } else {
-    // Subiendo → mostrar
-        navbar.style.top = "0";
-    }
-
-  prevScroll = currentScroll;
 });
 
-  window.addEventListener("DOMContentLoaded", () => {
-    const hl = document.querySelector(".highlight");
-    hl.classList.add("animate"); // activa de inmediato al cargar
-  });
+
+// Para services.html
+if (window.location.pathname.includes('services.html')) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Colores para service cards hover
+        const colors = [
+            'linear-gradient(135deg, #23272a 0%, #181818 100%)',
+            'linear-gradient(135deg, #ff9800 0%, #ffa424 100%)',
+            'linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)',
+            'linear-gradient(135deg, #e53935 0%, #ff5252 100%)'
+        ];
+        
+        document.querySelectorAll('.service-hover-card').forEach(card => {
+            const info = card.querySelector('.service-info');
+            const body = card.querySelector('.card-body');
+            
+            card.addEventListener('mouseenter', function() {
+                if (info) {
+                    info.style.display = 'block';
+                    info.style.animation = 'slideInUp 0.4s ease-out';
+                }
+                
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                card.style.background = randomColor;
+                card.style.transform = 'translateY(-8px) scale(1.02)';
+                
+                if (body) {
+                    body.style.background = 'transparent';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                if (info) {
+                    info.style.display = 'none';
+                }
+                
+                card.style.background = '';
+                card.style.transform = '';
+                
+                if (body) {
+                    body.style.background = '';
+                }
+            });
+        });
+    });
+}
+
+// Para about.html
+if (window.location.pathname.includes('about.html')) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animaciones especiales para valores
+        document.querySelectorAll('.card-hover-effect').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate-zoom-rotate');
+        });
+    });
+}
+
+// Para portafolio.html
+if (window.location.pathname.includes('portafolio.html')) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Portfolio items con efectos especiales
+        document.querySelectorAll('.portfolio-card').forEach((card, index) => {
+            const animations = ['animate-slide-left', 'animate-slide-right', 'animate-flip-y'];
+            const randomAnimation = animations[index % animations.length];
+            
+            card.classList.add(randomAnimation);
+            card.style.animationDelay = `${index * 0.2}s`;
+            
+            // Efecto hover especial
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-15px) rotateX(5deg)';
+                this.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 168, 36, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
+        });
+    });
+}
+
+
+window.AnimationUtils = {
+    // Función para animar cualquier elemento
+    animate: (element, animation, duration = 0.5) => {
+        return animationManager.addCustomAnimation(element, animation, duration);
+    },
+    
+    // Función para crear loading overlay
+    showLoading: () => {
+        let overlay = document.querySelector('.loading-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-spinner"></div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        overlay.classList.add('active');
+    },
+    
+    hideLoading: () => {
+        const overlay = document.querySelector('.loading-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    },
+    
+    // Función para animar entrada de página
+    pageEnter: () => {
+        document.body.style.animation = 'fadeIn 0.6s ease-out';
+        
+        // Animar elementos principales con delay
+        const mainElements = document.querySelectorAll('.hero-section, .container > .row');
+        mainElements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                element.style.transition = 'all 0.6s ease-out';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, 200 + (index * 100));
+        });
+    },
+    
+    // Función para scroll suave a elemento
+    scrollTo: (elementOrSelector, offset = 80) => {
+        const element = typeof elementOrSelector === 'string' 
+            ? document.querySelector(elementOrSelector) 
+            : elementOrSelector;
+            
+        if (element) {
+            const targetPosition = element.offsetTop - offset;
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+};
+
+// Ejecutar animación de entrada de página
+window.addEventListener('load', () => {
+    window.AnimationUtils.pageEnter(); 
+}); 
+
+// Validación y animaciones del formulario
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('contactForm');
+            const submitBtn = form.querySelector('.btn-submit');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            // Validación en tiempo real
+            const inputs = form.querySelectorAll('.form-control[required]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                // Efecto de focus
+                input.addEventListener('focus', function() {
+                    this.parentElement.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            // Función de validación
+            function validateField(field) {
+                const value = field.value.trim();
+                let isValid = false;
+
+                // Validar según el tipo de campo
+                switch(field.type) {
+                    case 'email':
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        isValid = emailRegex.test(value);
+                        break;
+                    case 'text':
+                    case 'textarea':
+                        isValid = value.length >= 2;
+                        break;
+                    default:
+                        isValid = value !== '';
+                }
+
+                // Aplicar clases de validación
+                if (isValid) {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                } else if (value !== '') {
+                    field.classList.remove('is-valid');
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-valid', 'is-invalid');
+                }
+
+                return isValid;
+            }
+
+            // Envío del formulario
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validar todos los campos
+                let isFormValid = true;
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isFormValid = false;
+                    }
+                });
+
+                if (!isFormValid) {
+                    showAlert('Por favor, corrige los errores en el formulario.', 'danger');
+                    return;
+                }
+
+                // Animación de carga
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                btnText.innerHTML = '<span class="spinner"></span>Enviando...';
+
+                // Simular envío (reemplazar con tu lógica real)
+                setTimeout(() => {
+                    // Éxito
+                    submitBtn.classList.remove('loading');
+                    submitBtn.classList.add('success');
+                    btnText.innerHTML = '<i class="fas fa-check me-2"></i>¡Enviado!';
+                    
+                    showAlert('¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.', 'success');
+                    
+                    // Limpiar formulario
+                    form.reset();
+                    inputs.forEach(input => {
+                        input.classList.remove('is-valid', 'is-invalid');
+                    });
+
+                    // Restaurar botón
+                    setTimeout(() => {
+                        submitBtn.classList.remove('success');
+                        submitBtn.disabled = false;
+                        btnText.innerHTML = 'Enviar mensaje';
+                    }, 3000);
+
+                }, 2000);
+            });
+
+            // Función para mostrar alertas
+            function showAlert(message, type) {
+                // Remover alertas existentes
+                const existingAlerts = document.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+
+                // Crear nueva alerta
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible alert-animated mb-4`;
+                alert.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                `;
+
+                // Insertar antes del formulario
+                form.parentNode.insertBefore(alert, form);
+
+                // Auto-eliminar después de 5 segundos
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
+
+            // Contador de caracteres para textarea
+            const messageField = document.getElementById('message');
+            const charCounter = document.createElement('div');
+            charCounter.className = 'text-end mt-2';
+            charCounter.style.color = 'rgba(255,255,255,0.6)';
+            charCounter.style.fontSize = '0.875rem';
+            messageField.parentElement.appendChild(charCounter);
+
+            messageField.addEventListener('input', function() {
+                const length = this.value.length;
+                const maxLength = 500;
+                charCounter.textContent = `${length}/${maxLength}`;
+                
+                if (length > maxLength * 0.9) {
+                    charCounter.style.color = '#ff9800';
+                } else {
+                    charCounter.style.color = 'rgba(255,255,255,0.6)';
+                }
+            });
+
+            // Trigger inicial para el contador
+            messageField.dispatchEvent(new Event('input'));
+        });
+
+        // Animaciones de entrada
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            observer.observe(el);
+        });
